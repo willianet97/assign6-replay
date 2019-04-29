@@ -399,10 +399,11 @@ void packetHandler(u_char *userData, const struct pcap_pkthdr *packet_header, co
 		}
 		printf("\t\t\tmod seq = %u\n", ntohl(tcpHeader->th_seq));
 		printf("\t\t\tmod ack = %u\n", ntohl(tcpHeader->th_ack));
+		receivedResponse = 0;
 		n = pcap_sendpacket(handle, packet, packet_header->len);
 		if (n != 0)
 		{
-			printf("\tPacket not sent\n\n");
+			printf("\tPacket not sent because of failure\n\n");
 		}
 		else
 		{
@@ -414,7 +415,6 @@ void packetHandler(u_char *userData, const struct pcap_pkthdr *packet_header, co
 			getVictimResponse();
 		}
 		bsend = 0;
-		receivedResponse = 0;
 	}
 	else
 	{
