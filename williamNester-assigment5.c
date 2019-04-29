@@ -630,6 +630,6 @@ void getVictimResponse()
 
 	responseTCPHeader = (struct tcp_hdr *)(response_packet + sizeof(struct eth_hdr) + sizeof(struct ip_hdr));
 
-	printf("\t\t\tgot response seq = %d\n", htonl(responseTCPHeader->th_seq));
-	printf("\t\t\tgot response ack = %d\n", htonl(responseTCPHeader->th_ack));
+	printf("\t\t\tgot response seq = %d\n", htons(responseTCPHeader->th_seq));
+	printf("\t\t\tgot response ack = %d\n", htons(responseTCPHeader->th_ack));
 }
