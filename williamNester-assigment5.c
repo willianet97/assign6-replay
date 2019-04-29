@@ -382,7 +382,6 @@ void packetHandler(u_char *userData, const struct pcap_pkthdr *packet_header, co
 				break;
 			}
 		}
-		getVictimResponse();
 	}
 	if (bsend == 1)
 	{
@@ -398,6 +397,7 @@ void packetHandler(u_char *userData, const struct pcap_pkthdr *packet_header, co
 			{
 				usleep(500000);
 			}
+			getVictimResponse();
 		}
 		bsend = 0;
 	}
