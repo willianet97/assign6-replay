@@ -393,7 +393,8 @@ void packetHandler(u_char *userData, const struct pcap_pkthdr *packet_header, co
 		{
 			//memcpy(&tcpHeader->th_seq, &response_seq, sizeof(tcpHeader->th_seq));
 			response_seq = response_seq + 1;
-			memcpy(&tcpHeader->th_ack, &response_seq, sizeof(tcpHeader->th_ack));
+			tcpHeader->th_ack = response_seq;
+			//memcpy(&tcpHeader->th_ack, &response_seq, sizeof(tcpHeader->th_ack));
 		}
 		printf("\t\t\tmod seq = %u\n", ntohl(tcpHeader->th_seq));
 		printf("\t\t\tmod ack = %u\n", ntohl(tcpHeader->th_ack));
