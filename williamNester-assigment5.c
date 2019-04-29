@@ -391,9 +391,9 @@ void packetHandler(u_char *userData, const struct pcap_pkthdr *packet_header, co
 	{
 		if (receivedResponse == 1)
 		{
-			printf("received response entered")
-				//memcpy(&tcpHeader->th_seq, &response_seq, sizeof(tcpHeader->th_seq));
-				response_seq = response_seq + 1;
+			printf("received response entered");
+			//memcpy(&tcpHeader->th_seq, &response_seq, sizeof(tcpHeader->th_seq));
+			response_seq = response_seq + 1;
 			tcpHeader->th_ack = response_seq;
 			//memcpy(&tcpHeader->th_ack, &response_seq, sizeof(tcpHeader->th_ack));
 		}
