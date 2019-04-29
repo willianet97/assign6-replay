@@ -18,7 +18,7 @@ int packet_counter = 0;
 int firstime = 1;
 int bsend = 0;
 int receivedResponse = 0;
-int notsent = 0;
+int notsent = 1;
 
 // address ASCII arrays
 char eth_victim[ETH_ADDR_BITS], eth_attacker[ETH_ADDR_BITS], eth_new_victim[ETH_ADDR_BITS];
