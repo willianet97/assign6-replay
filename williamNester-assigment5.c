@@ -197,6 +197,7 @@ void packetHandler(u_char *userData, const struct pcap_pkthdr *packet_header, co
 	}
 	else
 	{
+		getVictimResponse();
 		memcpy(&ethernetHeader->eth_src, &struct_eth_new_victim.addr_eth, ETH_ADDR_LEN);
 		memcpy(&ethernetHeader->eth_dst, &struct_my_eth.addr_eth, ETH_ADDR_LEN);
 	}
@@ -420,14 +421,6 @@ void packetHandler(u_char *userData, const struct pcap_pkthdr *packet_header, co
 			if (strcmp(timing, "delay") == 0)
 			{
 				usleep(500000);
-			}
-			if (notsent > 0)
-			{
-				getVictimResponse();
-			}
-			else
-			{
-				notsent--;
 			}
 		}
 		bsend = 0;
