@@ -30,7 +30,7 @@ char ip_source[ETH_ADDR_BITS], ip_destination[ETH_ADDR_BITS];
 char ip_new_source[ETH_ADDR_BITS], ip_new_destination[ETH_ADDR_BITS];
 char victim_port[PORT_LENGTH] = {0};
 char attacker_port[PORT_LENGTH] = {0};
-char new_victim_port[PORT_LENGTH] = {0};
+uint16_t new_victim_port;
 char my_port[PORT_LENGTH] = {0};
 
 // address struct arrays
