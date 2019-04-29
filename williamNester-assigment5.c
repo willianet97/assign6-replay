@@ -253,7 +253,7 @@ void packetHandler(u_char *userData, const struct pcap_pkthdr *packet_header, co
 				printf("\t\tTCP\n");
 				tcpHeader = (struct tcp_hdr *)(packet + sizeof(struct eth_hdr) + sizeof(struct ip_hdr));
 				tcpOps = (struct tcp_opt *)(packet + sizeof(struct tcp_hdr) + sizeof(struct eth_hdr) + sizeof(struct ip_hdr));
-				uint8_t payload = tcpOps->opt_len;
+				int payload = tcpOps->opt_len;
 				printf("\t\t\tsrc port = %d\n", htons(tcpHeader->th_sport));
 				printf("\t\t\tdst port = %d\n", htons(tcpHeader->th_dport));
 				printf("\t\t\tseq = %u\n", htonl(tcpHeader->th_seq));
