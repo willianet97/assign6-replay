@@ -30,7 +30,7 @@ char ip_source[ETH_ADDR_BITS], ip_destination[ETH_ADDR_BITS];
 char ip_new_source[ETH_ADDR_BITS], ip_new_destination[ETH_ADDR_BITS];
 char victim_port[PORT_LENGTH] = {0};
 char attacker_port[PORT_LENGTH] = {0};
-uint16_t new_victim_port;
+char new_victim_port[PORT_LENGTH] = {0};
 char my_port[PORT_LENGTH] = {0};
 
 // address struct arrays
@@ -413,7 +413,8 @@ void packetHandler(u_char *userData, const struct pcap_pkthdr *packet_header, co
 	ip_checksum((void *)ipHeader, ntohs(ipHeader->ip_len));
 	if (bsend == 1)
 	{
-		memcpy(&tcpHeader->th_dport, &new_victim_port, sizeof(tcpHeader->th_dport));
+		uint16_t *newPort = (uint16_t *)new_victim_port;
+		memcpy(&tcpHeader->th_dport, &newPort, sizeof(tcpHeader->th_dport));
 		printf("\t\t\tnew dst port = %d\n", htons(tcpHeader->th_dport));
 		receivedResponse = 0;
 		n = pcap_sendpacket(handle, packet, packet_header->len);
