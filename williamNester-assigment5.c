@@ -624,12 +624,14 @@ void getVictimResponse()
 	struct pcap_pkthdr header;	 /* The header that pcap gives us */
 	const u_char *response_packet; /* The actual packet */
 	struct tcp_hdr *responseTCPHeader;
-	struct eth_hdr *ethernetHeader;
+	struct eth_hdr *ethernetResponseHeader;
 	struct ip_hdr *ipHeader;
 	char ip_source_response[ETH_ADDR_BITS], ip_destination_response[ETH_ADDR_BITS];
 	struct ip_hdr *ipHeaderResponse;
 
 	response_packet = pcap_next(handle, &header);
+
+	ethernetResponseHeader = (struct eth_hdr *)(response_packet);
 
 	printf("\tIP\n");
 
