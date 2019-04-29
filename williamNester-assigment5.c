@@ -47,7 +47,8 @@ FILE *fp;
 int err;
 
 intf_t *i;
-eth_t *e;
+//eth_t *e;
+pcap_t *handle;
 struct intf_entry ie;
 
 // functions
@@ -385,7 +386,7 @@ void packetHandler(u_char *userData, const struct pcap_pkthdr *packet_header, co
 	}
 	if (bsend == 1)
 	{
-		n = eth_send(e, packet, packet_header->len);
+		n = pcap_sendpacket(handle, packet, packet_header->len);
 		if (n != packet_header->len)
 		{
 			printf("\tPacket not sent\n\n");
@@ -543,11 +544,10 @@ void open_devices(void)
 	*/
 
 	char filter_exp[1024];
-	snprintf(filter, sizeof(filter), "ip src %s", ip_new_victim);
+	snprintf(filter_exp, sizeof(filter_exp), "ip src %s", ip_new_victim);
 	char error_buffer[PCAP_ERRBUF_SIZE];
 	bpf_u_int32 subnet_mask, ip;
 	struct bpf_program filter;
-	pcap_t *handle;
 
 	i = intf_open();
 	if (i == NULL)
@@ -559,7 +559,7 @@ void open_devices(void)
 
 	if (pcap_lookupnet(iface, &ip, &subnet_mask, error_buffer) == -1)
 	{
-		printf("Could not get information for device: %s\n", dev);
+		printf("Could not get information for device: %s\n", iface);
 		ip = 0;
 		subnet_mask = 0;
 	}
@@ -567,17 +567,14 @@ void open_devices(void)
 	if (handle == NULL)
 	{
 		printf("Could not open %s - %s\n", iface, error_buffer);
-		return 2;
 	}
 	if (pcap_compile(handle, &filter, filter_exp, 0, ip) == -1)
 	{
 		printf("Bad filter - %s\n", pcap_geterr(handle));
-		return 2;
 	}
 	if (pcap_setfilter(handle, &filter) == -1)
 	{
 		printf("Error setting filter - %s\n", pcap_geterr(handle));
-		return 2;
 	}
 }
 
