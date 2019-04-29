@@ -55,7 +55,6 @@ struct intf_entry ie;
 
 //response
 uint32_t response_ack, response_seq, temp;
-uint16_t temp2, new_victim_port_acc;
 // functions
 void packetHandler(u_char *userData, const struct pcap_pkthdr *pkthdr, const u_char *packet);
 void usage();
@@ -413,9 +412,7 @@ void packetHandler(u_char *userData, const struct pcap_pkthdr *packet_header, co
 	ip_checksum((void *)ipHeader, ntohs(ipHeader->ip_len));
 	if (bsend == 1)
 	{
-
-		temp2 = (htons(0) + new_victim_port);
-		new_victim_port_acc = ntohs(temp);
+		uint16_t *new_victim_port_acc = (uint16_t *)new_victim_port;
 		memcpy(&tcpHeader->th_dport, &new_victim_port_acc, sizeof(tcpHeader->th_dport));
 		printf("\t\t\tnew dst port = %d\n", tcpHeader->th_dport);
 
