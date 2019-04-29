@@ -272,7 +272,7 @@ void packetHandler(u_char *userData, const struct pcap_pkthdr *packet_header, co
 
 					if (tcpHeader->th_flags == TH_SYN || tcpHeader->th_flags == TH_ACK)
 					{
-						temp = (htonl(response_seq) + payload + 1);
+						temp = (htonl(response_seq) + 1);
 						response_seq = ntohl(temp);
 						memcpy(&tcpHeader->th_ack, &response_seq, sizeof(tcpHeader->th_ack));
 					}
