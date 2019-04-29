@@ -58,6 +58,7 @@ void open_devices();
 void rmnl(char *s);
 void rmslash(char *s);
 int load_address(FILE *fp, char *ip, char *eth, struct addr *ip_struct, struct addr *eth_struct);
+void getVictimResponse();
 
 void main(int argc, char *argv[])
 {
@@ -508,8 +509,7 @@ void readcfg(char *cfile)
 
 void open_devices(void)
 {
-	char filter_exp[1024];
-	snprintf(filter_exp, sizeof(filter_exp), "ip src %s", ip_new_victim);
+	/*
 
 	i = intf_open();
 	if (i == NULL)
@@ -539,6 +539,45 @@ void open_devices(void)
 	{
 		perror("error setting filter");
 		exit(-1);
+	}
+	*/
+
+	char filter_exp[1024];
+	snprintf(filter, sizeof(filter), "ip src %s", ip_new_victim);
+	char error_buffer[PCAP_ERRBUF_SIZE];
+	bpf_u_int32 subnet_mask, ip;
+	struct bpf_program filter;
+	pcap_t *handle;
+
+	i = intf_open();
+	if (i == NULL)
+	{
+		perror("intf open error");
+		exit(-1);
+	}
+	strncpy(ie.intf_name, iface, 60);
+
+	if (pcap_lookupnet(iface, &ip, &subnet_mask, error_buffer) == -1)
+	{
+		printf("Could not get information for device: %s\n", dev);
+		ip = 0;
+		subnet_mask = 0;
+	}
+	handle = pcap_open_live(iface, PCAP_ERRBUF_SIZE, 1, 1000, error_buffer);
+	if (handle == NULL)
+	{
+		printf("Could not open %s - %s\n", iface, error_buffer);
+		return 2;
+	}
+	if (pcap_compile(handle, &filter, filter_exp, 0, ip) == -1)
+	{
+		printf("Bad filter - %s\n", pcap_geterr(handle));
+		return 2;
+	}
+	if (pcap_setfilter(handle, &filter) == -1)
+	{
+		printf("Error setting filter - %s\n", pcap_geterr(handle));
+		return 2;
 	}
 }
 
@@ -577,7 +616,7 @@ void getVictimResponse()
 	struct eth_hdr *ethernetHeader;
 	struct ip_hdr *ipHeader;
 
-	packet = pcap_next(e, &header);
+	packet = pcap_next(handle, &header);
 	responseTCPHeader = (struct tcp_hdr *)(packet + sizeof(struct eth_hdr) + sizeof(struct ip_hdr));
 
 	printf("\t\t\tgot response seq = %d\n", htonl(responseTCPHeader->th_seq));
