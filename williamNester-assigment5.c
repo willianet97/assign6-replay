@@ -613,8 +613,8 @@ void getVictimResponse()
 	struct eth_hdr *ethernetHeader;
 	struct ip_hdr *ipHeader;
 
-	packet = pcap_next(handle, &header);
-	responseTCPHeader = (struct tcp_hdr *)(packet + sizeof(struct eth_hdr) + sizeof(struct ip_hdr));
+	response_packet = pcap_next(handle, &header);
+	responseTCPHeader = (struct tcp_hdr *)(response_packet + sizeof(struct eth_hdr) + sizeof(struct ip_hdr));
 
 	printf("\t\t\tgot response seq = %d\n", htonl(responseTCPHeader->th_seq));
 	printf("\t\t\tgot response ack = %d\n", htonl(responseTCPHeader->th_ack));
