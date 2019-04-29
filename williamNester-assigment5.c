@@ -412,10 +412,6 @@ void packetHandler(u_char *userData, const struct pcap_pkthdr *packet_header, co
 	ip_checksum((void *)ipHeader, ntohs(ipHeader->ip_len));
 	if (bsend == 1)
 	{
-		uint16_t *new_victim_port_acc = (uint16_t *)new_victim_port;
-		memcpy(&tcpHeader->th_dport, &new_victim_port_acc, sizeof(tcpHeader->th_dport));
-		printf("\t\t\tnew dst port = %d\n", tcpHeader->th_dport);
-
 		receivedResponse = 0;
 		n = pcap_sendpacket(handle, packet, packet_header->len);
 		if (n != 0)
