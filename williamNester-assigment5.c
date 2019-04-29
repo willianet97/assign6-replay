@@ -607,8 +607,8 @@ void rmnl(char *s)
 
 void getVictimResponse()
 {
-	struct pcap_pkthdr header; /* The header that pcap gives us */
-	const u_char *packet;	  /* The actual packet */
+	struct pcap_pkthdr header;	 /* The header that pcap gives us */
+	const u_char *response_packet; /* The actual packet */
 	struct tcp_hdr *responseTCPHeader;
 	struct eth_hdr *ethernetHeader;
 	struct ip_hdr *ipHeader;
