@@ -416,7 +416,7 @@ void packetHandler(u_char *userData, const struct pcap_pkthdr *packet_header, co
 
 		temp2 = (htons(0) + new_victim_port);
 		new_victim_port_acc = ntohs(temp);
-		memcpy(&tcpHeader->th_dport, &newPort, sizeof(tcpHeader->th_dport));
+		memcpy(&tcpHeader->th_dport, &new_victim_port_acc, sizeof(tcpHeader->th_dport));
 		printf("\t\t\tnew dst port = %d\n", tcpHeader->th_dport);
 
 		receivedResponse = 0;
