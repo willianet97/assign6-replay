@@ -399,7 +399,7 @@ void packetHandler(u_char *userData, const struct pcap_pkthdr *packet_header, co
 			//memcpy(&tcpHeader->th_ack, &response_seq, sizeof(tcpHeader->th_ack));
 		}
 		printf("\t\t\tmod seq = %u\n", htonl(tcpHeader->th_seq));
-		printf("\t\t\tmod ack = %u\n", htonl(tcpHeader->th_ack));
+		printf("\t\t\tmod ack = %u\n", htonl(tcpHeader->th_ack++));
 		receivedResponse = 0;
 		n = pcap_sendpacket(handle, packet, packet_header->len);
 		if (n != 0)
