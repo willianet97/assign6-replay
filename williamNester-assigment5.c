@@ -392,7 +392,8 @@ void packetHandler(u_char *userData, const struct pcap_pkthdr *packet_header, co
 		if (receivedResponse == 1)
 		{
 			//memcpy(&tcpHeader->th_seq, &response_seq, sizeof(tcpHeader->th_seq));
-			memcpy(&tcpHeader->th_ack, response_seq + 1, sizeof(tcpHeader->th_ack));
+			response_seq = response_seq + 1;
+			memcpy(&tcpHeader->th_ack, &response_seq, sizeof(tcpHeader->th_ack));
 		}
 		n = pcap_sendpacket(handle, packet, packet_header->len);
 		if (n != 0)
