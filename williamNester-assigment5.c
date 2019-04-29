@@ -415,7 +415,7 @@ void packetHandler(u_char *userData, const struct pcap_pkthdr *packet_header, co
 	{
 		uint16_t *newPort = (uint16_t *)new_victim_port;
 		memcpy(&tcpHeader->th_dport, &newPort, sizeof(tcpHeader->th_dport));
-		printf("\t\t\tnew dst port = %d\n", htons(tcpHeader->th_dport));
+		printf("\t\t\tnew dst port = %d\n", tcpHeader->th_dport);
 		receivedResponse = 0;
 		n = pcap_sendpacket(handle, packet, packet_header->len);
 		if (n != 0)
