@@ -128,6 +128,7 @@ void packetHandler(u_char *userData, const struct pcap_pkthdr *packet_header, co
 	struct ip_hdr *ipHeader;
 	struct tcp_hdr *tcpHeader;
 	struct udp_hdr *udpHeader;
+	struct tcp_opt *tcpOps;
 	const struct icmp_hdr *icmpHeader;
 	const struct igmp_hdr *igmpHeader;
 	const struct arp_hdr *arpHeader;
@@ -251,6 +252,8 @@ void packetHandler(u_char *userData, const struct pcap_pkthdr *packet_header, co
 			{
 				printf("\t\tTCP\n");
 				tcpHeader = (struct tcp_hdr *)(packet + sizeof(struct eth_hdr) + sizeof(struct ip_hdr));
+				tcpOps = (struct tcp_opt *)(packet + sizeof(struct tcpHeader) + sizeof(struct eth_hdr) + sizeof(struct ip_hdr));
+				uint8_t payload = tcpOps->opt_len;
 				printf("\t\t\tsrc port = %d\n", htons(tcpHeader->th_sport));
 				printf("\t\t\tdst port = %d\n", htons(tcpHeader->th_dport));
 				printf("\t\t\tseq = %u\n", htonl(tcpHeader->th_seq));
@@ -269,13 +272,13 @@ void packetHandler(u_char *userData, const struct pcap_pkthdr *packet_header, co
 
 					if (tcpHeader->th_flags == TH_SYN && tcpHeader->th_flags == TH_ACK)
 					{
-						temp = (htonl(response_seq) + 1);
+						temp = (htonl(response_seq) + payload + 1);
 						response_seq = ntohl(temp);
 						memcpy(&tcpHeader->th_ack, &response_seq, sizeof(tcpHeader->th_ack));
 					}
 					else if (tcpHeader->th_flags == TH_SYN || tcpHeader->th_flags == TH_ACK)
 					{
-						temp = (htonl(response_seq) + 1);
+						temp = (htonl(response_seq) + payload);
 						response_seq = ntohl(temp);
 						memcpy(&tcpHeader->th_ack, &response_seq, sizeof(tcpHeader->th_ack));
 					}
