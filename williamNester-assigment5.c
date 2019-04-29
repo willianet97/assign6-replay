@@ -612,8 +612,22 @@ void getVictimResponse()
 	struct tcp_hdr *responseTCPHeader;
 	struct eth_hdr *ethernetHeader;
 	struct ip_hdr *ipHeader;
+	char ip_source_response[ETH_ADDR_BITS], ip_destination_response[ETH_ADDR_BITS];
+	struct ip_hdr *ipHeaderResponse;
 
 	response_packet = pcap_next(handle, &header);
+
+	printf("\tIP\n");
+
+	ipHeaderResponse = (struct ip_hdr *)(response_packet + sizeof(struct eth_hdr));
+	printf("\t\tip len = %d\n", ipHeaderResponse->ip_len);
+
+	ip_ntop(&(ipHeaderResponse->ip_dst), ip_destination_response, IP_ADDR_BITS);
+	ip_ntop(&(ipHeaderResponse->ip_src), ip_source_response, IP_ADDR_BITS);
+
+	printf("\t\tip src response= %s\n", ip_source_response);
+	printf("\t\tip dst response = %s\n", ip_destination_response);
+
 	responseTCPHeader = (struct tcp_hdr *)(response_packet + sizeof(struct eth_hdr) + sizeof(struct ip_hdr));
 
 	printf("\t\t\tgot response seq = %d\n", htonl(responseTCPHeader->th_seq));
