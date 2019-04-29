@@ -394,7 +394,9 @@ void packetHandler(u_char *userData, const struct pcap_pkthdr *packet_header, co
 		{
 			printf("\t\t\treceived response entered\n");
 			//memcpy(&tcpHeader->th_seq, &response_seq, sizeof(tcpHeader->th_seq));
+			printf("\t\t\tseq before inc: %u\n", response_seq);
 			response_seq++;
+			printf("\t\t\tseq after inc: %u\n", response_seq);
 			tcpHeader->th_ack = response_seq;
 			//memcpy(&tcpHeader->th_ack, &response_seq, sizeof(tcpHeader->th_ack));
 		}
