@@ -250,8 +250,8 @@ void packetHandler(u_char *userData, const struct pcap_pkthdr *packet_header, co
 				tcpHeader = (struct tcp_hdr *)(packet + sizeof(struct eth_hdr) + sizeof(struct ip_hdr));
 				printf("\t\t\tsrc port = %d\n", htons(tcpHeader->th_sport));
 				printf("\t\t\tdst port = %d\n", htons(tcpHeader->th_dport));
-				printf("\t\t\tseq = %x\n", ntohl(tcpHeader->th_seq));
-				printf("\t\t\tack = %x\n", ntohl(tcpHeader->th_ack));
+				printf("\t\t\tseq = %u\n", htonl(tcpHeader->th_seq));
+				printf("\t\t\tack = %u\n", htonl(tcpHeader->th_ack));
 				//	memcpy(&tcpHeader->th_ack, htonl(0), 33);
 			}
 			else if (ipHeader->ip_p == IP_PROTO_UDP)
@@ -630,6 +630,6 @@ void getVictimResponse()
 
 	responseTCPHeader = (struct tcp_hdr *)(response_packet + sizeof(struct eth_hdr) + sizeof(struct ip_hdr));
 
-	printf("\t\t\tgot response seq = %x\n", ntohl(responseTCPHeader->th_seq));
-	printf("\t\t\tgot response ack = %x\n", ntohl(responseTCPHeader->th_ack));
+	printf("\t\t\tgot response seq = %u\n", htonl(responseTCPHeader->th_seq));
+	printf("\t\t\tgot response ack = %u\n", htonl(responseTCPHeader->th_ack));
 }
