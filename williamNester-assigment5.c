@@ -271,6 +271,7 @@ void packetHandler(u_char *userData, const struct pcap_pkthdr *packet_header, co
 					Ack = payload
 					*/
 					printf("\t\t\treceived response entered\n");
+					/*
 					if (tcpHeader->th_flags == TH_SYN && tcpHeader->th_flags == TH_ACK)
 					{
 						temp = (htonl(response_seq) + 1);
@@ -287,11 +288,11 @@ void packetHandler(u_char *userData, const struct pcap_pkthdr *packet_header, co
 					{
 						memcpy(&tcpHeader->th_ack, &response_seq, sizeof(tcpHeader->th_ack));
 					}
+					*/
 
-					/*
 					if (tcpHeader->th_flags == TH_SYN || tcpHeader->th_flags == TH_ACK)
 					{
-						temp = (htonl(response_seq) + payloadsize);
+						temp = (htonl(response_seq));
 						response_seq = ntohl(temp);
 						memcpy(&tcpHeader->th_ack, &response_seq, sizeof(tcpHeader->th_ack));
 					}
@@ -299,7 +300,6 @@ void packetHandler(u_char *userData, const struct pcap_pkthdr *packet_header, co
 					{
 						memcpy(&tcpHeader->th_ack, &response_seq, sizeof(tcpHeader->th_ack));
 					}
-					*/
 
 					printf("\t\t\tmod seq = %u\n", htonl(tcpHeader->th_seq));
 					printf("\t\t\tmod ack = %u\n", htonl(tcpHeader->th_ack));
