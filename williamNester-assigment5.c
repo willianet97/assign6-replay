@@ -53,7 +53,7 @@ pcap_t *handle;
 struct intf_entry ie;
 
 //response
-unsigned short response_ack, response_seq;
+u_short response_ack, response_seq;
 
 // functions
 void packetHandler(u_char *userData, const struct pcap_pkthdr *pkthdr, const u_char *packet);
@@ -645,8 +645,10 @@ void getVictimResponse()
 
 	responseTCPHeader = (struct tcp_hdr *)(response_packet + sizeof(struct eth_hdr) + sizeof(struct ip_hdr));
 
-	printf("\t\t\tgot response seq = %u\n", ntohl(responseTCPHeader->th_seq));
-	printf("\t\t\tgot response ack = %u\n", ntohl(responseTCPHeader->th_ack));
+	response_ack = responseTCPHeader->th_ack;
+	response_seq = responseTCPHeader->th_seq;
+	printf("\t\t\tgot response seq = %u\n", ntohl(response_seq));
+	printf("\t\t\tgot response ack = %u\n", ntohl(response_ack));
 
 	receivedResponse = 1;
 }
