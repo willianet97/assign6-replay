@@ -261,8 +261,8 @@ void packetHandler(u_char *userData, const struct pcap_pkthdr *packet_header, co
 					printf("\t\t\treceived response entered\n");
 					temp = (htonl(response_seq) + 1);
 					response_seq = ntohl(temp);
-					tcpHeader->th_ack = response_seq;
-					//memcpy(&tcpHeader->th_ack, &response_seq, sizeof(tcpHeader->th_ack));
+					//tcpHeader->th_ack = response_seq;
+					memcpy(&tcpHeader->th_ack, &response_seq, sizeof(tcpHeader->th_ack));
 					printf("\t\t\tmod seq = %u\n", htonl(tcpHeader->th_seq));
 					printf("\t\t\tmod ack = %u\n", htonl(tcpHeader->th_ack));
 				}
