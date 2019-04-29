@@ -632,6 +632,7 @@ void rmnl(char *s)
 
 void getVictimResponse()
 {
+	printf("\tGetting Actual Response\n");
 	struct pcap_pkthdr header;	 /* The header that pcap gives us */
 	const u_char *response_packet; /* The actual packet */
 	struct tcp_hdr *responseTCPHeader;
