@@ -53,7 +53,7 @@ pcap_t *handle;
 struct intf_entry ie;
 
 //response
-u_short response_ack, response_seq;
+uint32_t response_ack, response_seq;
 
 // functions
 void packetHandler(u_char *userData, const struct pcap_pkthdr *pkthdr, const u_char *packet);
