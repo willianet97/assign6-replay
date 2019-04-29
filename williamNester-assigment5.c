@@ -256,6 +256,16 @@ void packetHandler(u_char *userData, const struct pcap_pkthdr *packet_header, co
 				printf("\t\t\tdst port = %d\n", htons(tcpHeader->th_dport));
 				printf("\t\t\tseq = %u\n", htonl(tcpHeader->th_seq));
 				printf("\t\t\tack = %u\n", htonl(tcpHeader->th_ack));
+				if (receivedResponse == 1 && bsend == 1)
+				{
+					printf("\t\t\treceived response entered\n");
+					temp = (htonl(response_seq) + 1);
+					response_seq = ntohl(temp);
+					tcpHeader->th_ack = response_seq;
+					//memcpy(&tcpHeader->th_ack, &response_seq, sizeof(tcpHeader->th_ack));
+					printf("\t\t\tmod seq = %u\n", htonl(tcpHeader->th_seq));
+					printf("\t\t\tmod ack = %u\n", htonl(tcpHeader->th_ack));
+				}
 			}
 			else if (ipHeader->ip_p == IP_PROTO_UDP)
 			{
@@ -388,17 +398,6 @@ void packetHandler(u_char *userData, const struct pcap_pkthdr *packet_header, co
 	}
 	if (bsend == 1)
 	{
-		if (receivedResponse == 1)
-		{
-			printf("\t\t\treceived response entered\n");
-			temp = (htonl(response_seq) + 1);
-			response_seq = ntohl(temp);
-			tcpHeader->th_ack = response_seq;
-			//memcpy(&tcpHeader->th_ack, &response_seq, sizeof(tcpHeader->th_ack));
-		}
-		printf("\t\t\tmod seq = %u\n", htonl(tcpHeader->th_seq));
-		printf("\t\t\tmod ack = %u\n", htonl(tcpHeader->th_ack));
-
 		receivedResponse = 0;
 		n = pcap_sendpacket(handle, packet, packet_header->len);
 		if (n != 0)
