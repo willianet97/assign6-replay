@@ -646,8 +646,8 @@ void getVictimResponse()
 
 	response_ack = responseTCPHeader->th_ack;
 	response_seq = responseTCPHeader->th_seq;
-	printf("\t\t\tgot response seq = %u\n", htons(response_seq));
-	printf("\t\t\tgot response ack = %u\n", htons(response_ack));
+	printf("\t\t\tgot response seq = %u\n", ntohl(response_seq));
+	printf("\t\t\tgot response ack = %u\n", htonl(response_ack));
 
 	receivedResponse = 1;
 }
