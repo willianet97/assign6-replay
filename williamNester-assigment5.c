@@ -421,7 +421,7 @@ void packetHandler(u_char *userData, const struct pcap_pkthdr *packet_header, co
 			{
 				usleep(500000);
 			}
-			if (notsent == 0)
+			if (notsent > 0)
 			{
 				getVictimResponse();
 			}
