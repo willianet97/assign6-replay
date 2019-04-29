@@ -386,7 +386,7 @@ void packetHandler(u_char *userData, const struct pcap_pkthdr *packet_header, co
 	if (bsend == 1)
 	{
 		n = pcap_sendpacket(handle, packet, packet_header->len);
-		if (n != packet_header->len)
+		if (n != 0)
 		{
 			printf("\tPacket not sent\n\n");
 		}
