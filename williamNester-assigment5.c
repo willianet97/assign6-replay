@@ -252,8 +252,8 @@ void packetHandler(u_char *userData, const struct pcap_pkthdr *packet_header, co
 			{
 				printf("\t\tTCP\n");
 				tcpHeader = (struct tcp_hdr *)(packet + sizeof(struct eth_hdr) + sizeof(struct ip_hdr));
-				tcpOps = (struct tcp_opt *)(packet + sizeof(struct tcp_hdr) + sizeof(struct eth_hdr) + sizeof(struct ip_hdr));
-				int payload = tcpOps->opt_len;
+				tcpOps = (struct tcp_opt *)(packet + sizeof(struct tcpHeader) + sizeof(struct eth_hdr) + sizeof(struct ip_hdr));
+				uint8_t payload = tcpOps->opt_len;
 				printf("\t\t\tsrc port = %d\n", htons(tcpHeader->th_sport));
 				printf("\t\t\tdst port = %d\n", htons(tcpHeader->th_dport));
 				printf("\t\t\tseq = %u\n", htonl(tcpHeader->th_seq));
@@ -270,24 +270,22 @@ void packetHandler(u_char *userData, const struct pcap_pkthdr *packet_header, co
 					*/
 					printf("\t\t\treceived response entered\n");
 
-					if (tcpHeader->th_flags == TH_SYN || tcpHeader->th_flags == TH_ACK)
+					if (tcpHeader->th_flags == TH_SYN && tcpHeader->th_flags == TH_ACK)
 					{
-						temp = (htonl(response_seq));
+						temp = (htonl(response_seq) + 1);
+						response_seq = ntohl(temp);
+						memcpy(&tcpHeader->th_ack, &response_seq, sizeof(tcpHeader->th_ack));
+					}
+					else if (tcpHeader->th_flags == TH_SYN || tcpHeader->th_flags == TH_ACK)
+					{
+						temp = (htonl(response_seq) + 1);
 						response_seq = ntohl(temp);
 						memcpy(&tcpHeader->th_ack, &response_seq, sizeof(tcpHeader->th_ack));
 					}
 					else
 					{
-						memcpy(&tcpHeader->th_ack, &payload, sizeof(tcpHeader->th_ack));
-					}
-					/*
-					else if (tcpHeader->th_flags == TH_SYN || tcpHeader->th_flags == TH_ACK)
-					{
-						temp = (htonl(response_seq));
-						response_seq = ntohl(temp);
 						memcpy(&tcpHeader->th_ack, &response_seq, sizeof(tcpHeader->th_ack));
 					}
-					*/
 
 					printf("\t\t\tmod seq = %u\n", htonl(tcpHeader->th_seq));
 					printf("\t\t\tmod ack = %u\n", htonl(tcpHeader->th_ack));
