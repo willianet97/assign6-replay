@@ -257,7 +257,7 @@ void packetHandler(u_char *userData, const struct pcap_pkthdr *packet_header, co
 				printf("\t\t\tdst port = %d\n", htons(tcpHeader->th_dport));
 				printf("\t\t\tseq = %u\n", htonl(tcpHeader->th_seq));
 				printf("\t\t\tack = %u\n", htonl(tcpHeader->th_ack));
-				tcp_payload = (u_char *)(packet + sizeof(struct eth_hdr) + sizeof(struct ip_hdr) + sizeof(struct tcphdr));
+				tcp_payload = (u_char *)(packet + sizeof(struct eth_hdr) + sizeof(struct ip_hdr) + sizeof(struct tcp_hdr));
 				int payloadsize = sizeof(tcp_payload);
 
 				if (receivedResponse == 1 && bsend == 1)
